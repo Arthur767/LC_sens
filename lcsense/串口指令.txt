@@ -1,0 +1,44 @@
+通信格式：
+//命令类型
+typedef enum
+{
+  Func_PullsGet,
+  Func_PullsSet,
+  Func_Butn,
+}FuncType;
+
+//发送数据结构
+typedef struct
+{
+  uint8_t Preamble[2];  //2个字节FEH
+  uint8_t Head;      //帧头0x68
+  uint8_t Type;     //类型+方向 下行|0x80
+  uint8_t Err;      //错误
+  uint8_t Len;      //长度
+  uint8_t Cmd[6];      //指令内容和累加校验,结束符16H
+}TxBuf_TypeDef;
+
+#define Index_Head      0   //帧头位置
+#define Index_Typ       1   //帧类型加方向 下行|0x80
+#define Index_Err       2   //错误类型
+#define Index_Len       3   //长度位置
+#define Index_cnt       4   //计量值位置
+#define Index_Max_Len   UART_RXBUFF_SIZE-5-2 //去除Head,typ,Err,len,cs
+#define Index_Min       4+1         //最小指令长度不包括结束
+#define Index_Max       UART_RXBUFF_SIZE
+
+
+
+
+
+例子：
+下行设置数据：
+FE 68 81 00 04 00 00 00 18 05 16
+FE 68 01 00 00 69 16 
+下行读数据：
+FE 68 80 00 00 E8 16
+FE 68 00 00 04 00 00 00 18 84 16 
+
+按键后发出指令,需要应答：
+FE FE 68 02 00 00 6A 16
+
